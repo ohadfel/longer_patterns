@@ -1,14 +1,40 @@
-% Generate INDATA (OUTDATA) markers
-addpath(genpath('/cortex/users/ohad/pairs_analysis/Idans_code/'))
-addpath(genpath('/home/lab/ohadfel/Code/fieldtrip-20140630'))
-addpath(genpath('/home/lab/ohadfel/Code/ft_BIU'))
-addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/IT'))
-addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/MEGanalysis'));
+%get current computer name
+[~, cur_computer_name] = system('hostname');
+cur_computer_name= strtrim(cur_computer_name);
+if strcmp(cur_computer_name(1:5),'shell')
+    cur_computer_name = cur_computer_name(117:(end-1));
+end
+if strcmp(cur_computer_name(1:3),'ctx')
+    cur_computer = 'cortex';
+    addpath(genpath('/cortex/users/ohad/pairs_analysis/Idans_code/'))
+    addpath(genpath('/home/lab/ohadfel/Code/fieldtrip-20140630'))
+    addpath(genpath('/home/lab/ohadfel/Code/ft_BIU'))
+    base_path = '/cortex/data/MEG/Baus/CCdata/';
+elseif strcmp(cur_computer_name,'idanHP')
+    cur_computer = 'idan_new';
+    addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/IT'))
+    addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/MEGanalysis'));
+    addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/'));
+    addpath(genpath('/media/FC7016037015C4F4/Ohad/longer_patterns/'));
+    base_path = '/media/FC7016037015C4F4/Ohad/';
+else
+    cur_computer= 'idan_old';
+    base_path = '/media/565821CF5821AEA5/Users/idan/Desktop/CCdata/';
+end
+
+% if strcmp(cur_computer,'cortex')
+%     addpath(genpath('/cortex/users/ohad/pairs_analysis/Idans_code/'))
+%     addpath(genpath('/home/lab/ohadfel/Code/fieldtrip-20140630'))
+%     addpath(genpath('/home/lab/ohadfel/Code/ft_BIU'))
+% elseif strcmp(cur_computer,'idan_new')
+%     addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/IT'))
+%     addpath(genpath('/media/FC7016037015C4F4/CCdata/matlab/MEGanalysis'));
+% end
 %% ============== Initialize ============================================
 % baseDirName = '/media/565821CF5821AEA5/Users/idan/Desktop/CCdata/1'; %'E:\MEGdata\2013_03_13';
 copy_process_files = 1;
-sub_num=102;
-base_path = '/cortex/data/MEG/Baus/CCdata/';
+sub_num=114;
+% base_path = '/cortex/data/MEG/Baus/CCdata/';
 % base_path = '/media/565821CF5821AEA5/Users/idan/Desktop/CCdata/';
 % base_path = '/media/FC7016037015C4F4/Ohad/';
 
@@ -20,8 +46,16 @@ wtsOutDirName = sprintf('%s/SAM/wtsIT', baseDirName_output);
 outDirName =sprintf('%s/matlabData', baseDirName_output);
 cd(baseDirName_input)
 % fileName = sprintf('%s/rs,xc,hb,lf_c,rfhp0.1Hz', baseDirName_input);
-megFileName = 'rs,xc,hb,lf_c,rfhp0.1Hz';
-megFileName = 'xc,hb,lf_c,rfhp0.1Hz';
+% megFileName = 'rs,xc,hb,lf_c,rfhp0.1Hz';
+% megFileName = 'xc,hb,lf_c,rfhp0.1Hz';
+
+files_in_folder = dir(baseDirName);
+for ii=1:length(files_in_folder)
+    if ~isempty(strfind(files_in_folder(ii).name,'xc,hb,lf_c,rfhp0.1Hz'))
+        megFileName = files_in_folder(ii).name;
+    end
+end
+
 fileName = sprintf('%s/%s', baseDirName_input, megFileName);
 p = pdf4D(fileName);
 samplingRate   = double(get(p,'dr')); %get the sqampling rate
@@ -64,11 +98,12 @@ if ~exist(sprintf('%s/SAM',baseDirName),'dir')
     unix(command);
 end
 cd SAM
-if ~exist(sprintf('%s/SAM/Cubes512',baseDirName),'dir')
-    command = sprintf('mkdir Cubes512');
+cubes_name = sprintf('Cubes%d',cubeID);
+if ~exist(sprintf('%s/SAM/%s',baseDirName,cubes_name),'dir')
+    command = sprintf('mkdir %s',cubes_name);
     unix(command);
 end
-cd Cubes512
+cd(cubes_name)
 
 % DATA = centers2mat('Centers.txt');
 DATA = balls;
@@ -76,7 +111,7 @@ cubeID = length(balls);
 XYZcub = makeBasiccube(2.0);
 % scatter3(XYZcub(:,1),XYZcub(:,2), XYZcub(:,3));
 
-rotateCube2files(pi/6, 3, 3, 3, 'Cubes512Loc', 1:512,XYZcub, DATA);
+rotateCube2files(pi/6, 3, 3, 3, [cubes_name,'Loc'], cubeID,XYZcub, DATA);
 
 %% ====================== Run SAMcov and SAMNwts ==================
 %% ##################################################################################
@@ -106,16 +141,19 @@ xxx = baseDirName(1:find(baseDirName=='/',1,'last')-1); % main data directory
 vvv = num2str(sub_num);                         % subject directory
 yyy = 'SAM';                       % SAM directory
 zzz = 'wtsIT';                     % directory to write the wts file (created automatically)
-uuu = 'Cubes512Loc';               % directory of the coordinates text files
+uuu = sprintf('Cubes%dLoc',cubeID);               % directory of the coordinates text files
 sss = megFileName;        % MEG file name
 rrr = 'expSAM_INDATA_OUTDATA';     % param file name
 ttt = 'R';
 ccc = '1';
-ddd = '512';
+ddd = sprintf('%d',cubeID);
 
 % CREATE SOMETHING LIKE: ~/programs/shellWts/IT_runLoop3D /home/idan/Desktop/CCdata 2 SAM wtsIT Cubes512Loc xc,hb,lf_c,rfhp0.1Hz expSAM_INDATA_OUTDATA R
 command = sprintf('~/programs/shellWts/IT_runLoop3D %s %s %s %s %s %s %s %s %s %s', xxx, vvv, yyy, zzz, uuu, sss, rrr, ttt, ccc, ddd);
-% copy the string to a terminal and run it
+
+%% ~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~
+%                     copy the string to a terminal and run it
+%% ~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~@~
 % unix(command,'-echo');
 
 %% ================ After creating the wts files load the MEG data =================
@@ -151,8 +189,8 @@ MEGwbRe= reorderMEG(MEG, act2chi);
 clear MEG
 % Extract the best SNR for all locations
 bestSNRallXahedrons = extractBestSNR4allPositions(MEGwbRe,...
-     MEGnrwRe, samplingRate, 'Cubes512Loc', '_Amp_wts', ...
-     [1 512], [1 27]);
+     MEGnrwRe, samplingRate, sprintf('Cubes%dLoc',cubeID), '_Amp_wts', ...
+     [1 cubeID], [1 27]);
 cd(outDirName)
 save bestSNRallXahedrons bestSNRallXahedrons
 
@@ -162,8 +200,8 @@ rotList = bestSNRallXahedrons.rotAtMinRo;
 
 % Get the CCDs at the optimal rotation
 cd(wtsOutDirName)
-CCD = reconstructCCDatRotation(MEG8t060Re, 'Cubes512Loc',...
-                             [1,512], '_Amp_wts', rotList);
+CCD = reconstructCCDatRotation(MEG8t060Re, sprintf('Cubes%dLoc',cubeID),...
+                             [1,cubeID], '_Amp_wts', rotList);
 % normalize the CCD to have 0 mean and std of 1 for each
 %   channel (or use Inbal’s normalization)
 cd(outDirName)
