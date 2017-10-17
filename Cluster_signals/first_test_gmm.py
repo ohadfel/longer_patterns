@@ -37,6 +37,6 @@ for ii in range(1, len(y_train_pred1)):
         last_class = y_train_pred1[ii]
         last_repeat = False
 
-x=1
+
 
 print(datetime.datetime.now())

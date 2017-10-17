@@ -31,7 +31,28 @@ conds = {'CHANGE', 'LAST'};
 subDirs = {sprintf('%s/CHANGE11', outDirName), sprintf('%s/LAST11', outDirName)};
 
 %% Add markerfile stuff
-
+%% ============== Create MarkeFile with INDATA and OUTDATA ===============
+%allMarkers = uniteAllOKtimes([baseDirName filesep 'MarkerFile.mrk']);
+%
+%allTimes = catStructFieldHoriz(allMarkers,'Times');
+%
+%allTimes = unique(allTimes);
+%
+%dT=0.5;
+%
+%continuousT = extendMarkers(allTimes, dT);
+%
+%tEnd = lastSample/samplingRate; % total length of file
+%
+%[marksIn, marksOut] = fillWithMarks(continuousT, dT, tEnd);
+%
+%uppendMarkers([baseDirName filesep 'MarkerFile.mrk'],marksIn, marksOut);
+%
+%% the new marker file is called NewMarker.mrk
+%
+%% rename it to MarkerFile.mrk
+%% !mv MarkerFile.mrk MarkerFile_orig2.mrk
+%% !mv NewMarker.mrk MarkerFile.mrk
 
 
 %% points and cubes creation
