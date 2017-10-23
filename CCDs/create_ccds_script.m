@@ -33,7 +33,7 @@ end
 %% ============== Initialize ============================================
 % baseDirName = '/media/565821CF5821AEA5/Users/idan/Desktop/CCdata/1'; %'E:\MEGdata\2013_03_13';
 copy_process_files = 1;
-sub_num=114;
+sub_num=117;
 % base_path = '/cortex/data/MEG/Baus/CCdata/';
 % base_path = '/media/565821CF5821AEA5/Users/idan/Desktop/CCdata/';
 % base_path = '/media/FC7016037015C4F4/Ohad/';
@@ -111,7 +111,7 @@ cubeID = length(balls);
 XYZcub = makeBasiccube(2.0);
 % scatter3(XYZcub(:,1),XYZcub(:,2), XYZcub(:,3));
 
-rotateCube2files(pi/6, 3, 3, 3, [cubes_name,'Loc'], cubeID,XYZcub, DATA);
+rotateCube2files(pi/6, 3, 3, 3, [cubes_name,'Loc'], 1:cubeID,XYZcub, DATA);
 
 %% ====================== Run SAMcov and SAMNwts ==================
 %% ##################################################################################
@@ -147,6 +147,12 @@ rrr = 'expSAM_INDATA_OUTDATA';     % param file name
 ttt = 'R';
 ccc = '1';
 ddd = sprintf('%d',cubeID);
+
+
+oldname = fullfile(baseDirName,'SAM',cubes_name);
+newname = fullfile(baseDirName,'SAM',[cubes_name,'Loc']);
+movefile(oldname,newname);
+
 
 % CREATE SOMETHING LIKE: ~/programs/shellWts/IT_runLoop3D /home/idan/Desktop/CCdata 2 SAM wtsIT Cubes512Loc xc,hb,lf_c,rfhp0.1Hz expSAM_INDATA_OUTDATA R
 command = sprintf('~/programs/shellWts/IT_runLoop3D %s %s %s %s %s %s %s %s %s %s', xxx, vvv, yyy, zzz, uuu, sss, rrr, ttt, ccc, ddd);
