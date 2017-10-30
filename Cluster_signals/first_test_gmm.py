@@ -9,14 +9,14 @@ import matplotlib.pyplot as plt
 
 cond2 = io.loadmat('/cortex/data/MEG/Baus/CCdata/102/matlabData/segments4clustering_cond2.mat')
 print(datetime.datetime.now())
-gaussian2 = mixture.GaussianMixture(n_components=100, covariance_type='spherical', max_iter=500, random_state=0,verbose=10)
+gaussian2 = mixture.GaussianMixture(n_components=500, covariance_type='spherical', max_iter=500, random_state=0,verbose=100)
 gaussian2.fit(cond2['segments'])
 y_train_pred2 = gaussian2.predict(cond2['segments'])
 plt.hist(y_train_pred2, 100)
 
 
 cond1 = io.loadmat('/cortex/data/MEG/Baus/CCdata/102/matlabData/segments4clustering_cond1.mat')
-gaussian1 = mixture.GaussianMixture(n_components=100, covariance_type='spherical', max_iter=500, random_state=0,verbose=10)
+gaussian1 = mixture.GaussianMixture(n_components=100, covariance_type='spherical', max_iter=500, random_state=0,verbose=100)
 print(datetime.datetime.now())
 gaussian1.fit(cond1['segments'])
 y_train_pred1 = gaussian1.predict(cond1['segments'])
